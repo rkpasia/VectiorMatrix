@@ -100,24 +100,13 @@ class Matrice{
   }
 
   private void placePivot(Pivot pivot){
-    for(int i = 0; i < matr[0].length; i++){
-      double appoggio = matr[Pivot.getNPivot()][i];
-      matr[Pivot.getNPivot()][i] = matr[pivot.getRow()][i];
-      matr[pivot.getRow()][i] = appoggio;
-    }
+    scambioRiga(Pivot.getNPivot(),pivot.getRow());
     pivot.setRow(Pivot.getNPivot());
   }
 
   private void reducePivot(Pivot pivot){//OK
     for(int i = 0; i < matr[0].length; i++){
      matr[pivot.getRow()][i] /= pivot.getValue();
-    }
-  }
-
-  private void sottrazioneRiga(int destRow, int srcRow, double value){//OK
-    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
-    for(int i = 0; i < matr[0].length; i++){
-      matr[destRow][i] -= matr[srcRow][i]*value;
     }
   }
 
@@ -145,6 +134,48 @@ class Matrice{
   private void riduzioneScala(int col){
     Pivot pivot = findPivot(col);
     if (pivot.getValue() != 0 ) setPivot(pivot);
+  }
+
+  private void moltiplicaRiga(int destRow, double value){
+    for(int i = 0; i < matr[0].length; i++){
+      matr[destRow][i] *= value;
+    }
+  }
+
+  private void sottrazioneRiga(int destRow, int srcRow, double value){//OK
+    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+    for(int i = 0; i < matr[0].length; i++){
+      matr[destRow][i] -= matr[srcRow][i]*value;
+    }
+  }
+
+  private void sottrazioneRiga(int destRow, int srcRow){//OK
+    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+    for(int i = 0; i < matr[0].length; i++){
+      matr[destRow][i] -= matr[srcRow][i];
+    }
+  }
+
+  private void addizioneRiga(int destRow, int srcRow, double value){//OK
+    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+    for(int i = 0; i < matr[0].length; i++){
+      matr[destRow][i] += matr[srcRow][i]*value;
+    }
+  }
+
+  private void addizioneRiga(int destRow, int srcRow){//OK
+    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+    for(int i = 0; i < matr[0].length; i++){
+      matr[destRow][i] += matr[srcRow][i];
+    }
+  }
+
+  private void scambioRiga(int destRow, int srcRow){
+    for(int i = 0; i < matr[0].length; i++){
+      double appoggio = matr[destRow][i];
+      matr[destRow][i] = matr[srcRow][i];
+      matr[srcRow][i] = appoggio;
+    }
   }
 
 
