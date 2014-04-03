@@ -59,6 +59,15 @@ class Matrice{
     }
   }
 
+  public boolean compare(double[][] firstMatr, double[][] secondMatr){
+    for(int i = 0; i < firstMatr.length; i ++){
+      for(int j = 0; j < firstMatr.length; j ++){
+        if(firstMatr[i][j] != secondMatr [i][j]) return false;
+      }
+    }
+    return true;
+  }
+
   public Matrice somma(Matrice m){
     double[][] matrSomma = m.matr;
     double[][] result;
@@ -223,8 +232,8 @@ class Matrice{
     }
   }
 
-  private double[][] getSubMatr(double[][] matr, int startCol, int endCol){
-    double[][] newMatr = new double[startCol][startCol];
+  private double[][] getSubMatr(double[][] matr, int startCol, int endCol, int dimension){
+    double[][] newMatr = new double[dimension][dimension];
     for(int i = startCol; i < endCol; i++){
       for(int j = 0; j < matr.length; j++){
         newMatr[j][i-startCol] = matr[j][i];
@@ -241,7 +250,12 @@ class Matrice{
     inversa.riduzioneScala();
     inversa.reducePivot(inversa.pivots.get(inversa.pivots.size()-2));
     inversa.riduzioneIdentita();
-    inversa.matr = inversa.getSubMatr(inversa.getValue(),matr.length,inversa.getValue()[0].length);
+    if(compare(inversa.getSubMatr(inversa.getValue(),0,matr.length,matr.length),identita.getValue())){
+      inversa.matr = inversa.getSubMatr(inversa.getValue(),matr.length,inversa.matr[0].length,matr.length);
+    }else{
+      inversa = new Matrice(0);
+      System.out.println("Non esiste un inversa");
+    }
   }
 
   public Matrice inversa(){
