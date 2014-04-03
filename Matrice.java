@@ -1,6 +1,9 @@
+import java.util.*;
+
 class Matrice{
   
   private double[][] matr;
+  private List<Pivot> pivots = new ArrayList<Pivot>();
 
   public Matrice(int row){
     matr = new double[row][row];
@@ -13,6 +16,16 @@ class Matrice{
   public Matrice(double[][] matr){
     this.matr = matr;
   }
+
+  public void insertValueUniversal(){
+    System.out.println("Inserisci valori della Matrice scrivendo i valori delle righe");
+    for(int i = 0; i<matr.length; i++){
+      for(int j = 0; j<matr[i].length; j++){
+        matr[i][j] = Leggi.unDouble();
+      }
+    }
+  }
+
 
   public void insertValue(){
     System.out.println("Inserisci valori della Matrice scrivendo i valori delle righe");
@@ -91,7 +104,6 @@ class Matrice{
       for(int j = 0; j < matr.length; j++){
         if(matr[j][i] != 0 && Pivot.getNPivot() < matr[0].length-1 && j > Pivot.getNPivot()){
           Pivot.incPivot();
-          System.out.println("Numero pivot: "+Pivot.getNPivot()+" Riga pivot: "+j+" Colonna pivot: "+i);
           return new Pivot(j,i,matr[j][i]);
         }
       }
@@ -99,21 +111,32 @@ class Matrice{
     return new Pivot(0,0,0);
   }
 
+  private void addPivot(Pivot pivot){
+    pivots.add(pivot);
+  }
+
   private void placePivot(Pivot pivot){
     scambioRiga(Pivot.getNPivot(),pivot.getRow());
     pivot.setRow(Pivot.getNPivot());
   }
 
-  private void reducePivot(Pivot pivot){//OK
+  private void reducePivot(Pivot pivot){
     for(int i = 0; i < matr[0].length; i++){
      matr[pivot.getRow()][i] /= pivot.getValue();
     }
   }
 
-  private void azzeraCol(Pivot pivot){//OK
+  private void azzeraCol(Pivot pivot){
     for(int i = pivot.getRow()+1; i < matr.length; i++){
       if(matr[i][pivot.getCol()] == 0) continue;
       sottrazioneRiga(i,pivot.getRow(),matr[i][pivot.getCol()]);
+    }
+  }
+
+  private void azzeraColInverse(Pivot pivot){
+    for(int i = pivot.getRow()-1; i >= 0; i--){
+      if(this.matr[i][pivot.getCol()] == 0) continue;
+      sottrazioneRiga(i,pivot.getRow(),this.matr[i][pivot.getCol()]);
     }
   }
 
@@ -121,18 +144,18 @@ class Matrice{
     if(pivot.getRow() != pivot.getCol()) placePivot(pivot);
     if(pivot.getCol() != matr.length-1) reducePivot(pivot);
     azzeraCol(pivot);
-    System.out.println("Risultato:\n");
-    printMatrice();
     riduzioneScala(pivot.getCol()+1);
   }
 
   public void riduzioneScala(){
     Pivot pivot = findPivot(0);
-    if (pivot.getValue() != 0 ) setPivot(pivot);
+    addPivot(pivot);
+    setPivot(pivot);
   }
 
   private void riduzioneScala(int col){
     Pivot pivot = findPivot(col);
+    addPivot(pivot);
     if (pivot.getValue() != 0 ) setPivot(pivot);
   }
 
@@ -142,29 +165,25 @@ class Matrice{
     }
   }
 
-  private void sottrazioneRiga(int destRow, int srcRow, double value){//OK
-    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+  private void sottrazioneRiga(int destRow, int srcRow, double value){
     for(int i = 0; i < matr[0].length; i++){
       matr[destRow][i] -= matr[srcRow][i]*value;
     }
   }
 
-  private void sottrazioneRiga(int destRow, int srcRow){//OK
-    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+  private void sottrazioneRiga(int destRow, int srcRow){
     for(int i = 0; i < matr[0].length; i++){
       matr[destRow][i] -= matr[srcRow][i];
     }
   }
 
-  private void addizioneRiga(int destRow, int srcRow, double value){//OK
-    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+  private void addizioneRiga(int destRow, int srcRow, double value){
     for(int i = 0; i < matr[0].length; i++){
       matr[destRow][i] += matr[srcRow][i]*value;
     }
   }
 
-  private void addizioneRiga(int destRow, int srcRow){//OK
-    System.out.println("Riga da cambiare: "+destRow + " Riga che effettuera' la differenza: " + srcRow);
+  private void addizioneRiga(int destRow, int srcRow){
     for(int i = 0; i < matr[0].length; i++){
       matr[destRow][i] += matr[srcRow][i];
     }
@@ -176,6 +195,59 @@ class Matrice{
       matr[destRow][i] = matr[srcRow][i];
       matr[srcRow][i] = appoggio;
     }
+  }
+
+  private void setIdentita(){
+    if(matr.length == matr[0].length) for(int i = 0; i < matr.length; i++) matr[i][i] = 1;
+    else {
+      for (int i = 0; i < matr.length; i++){
+        for(int j = i; j < matr[i].length; j++){
+          matr[i][j] = 1;
+        }
+      }
+    } 
+  }
+
+  private void riduzioneIdentita(){
+    for(int i = pivots.size()-1; i >= 0; i--){
+      if(pivots.get(i).getValue() == 0) continue;
+      azzeraColInverse(pivots.get(i));
+    }
+  }
+
+  private void inputData(Matrice inversa, double[][] fetchMatr, int startCol, int colLimit){
+    for(int i = startCol; i < colLimit; i++){
+      for(int j = 0; j < fetchMatr.length; j++){
+        inversa.matr[j][i] = fetchMatr[j][i-startCol];
+      }
+    }
+  }
+
+  private double[][] getSubMatr(double[][] matr, int startCol){
+    double[][] newMatr = new double[startCol][startCol];
+    for(int i = startCol; i < matr[0].length; i++){
+      for(int j = 0; j < matr.length; j++){
+        newMatr[j][i-startCol] = matr[j][i];
+      }
+    }
+    return newMatr;
+  }
+
+  private void setInversa(Matrice inversa){
+    Matrice identita = new Matrice(matr.length);
+    identita.setIdentita();
+    inputData(inversa,matr,0,matr.length);
+    inputData(inversa,identita.getValue(),matr.length,inversa.matr[0].length);
+    inversa.riduzioneScala();
+    inversa.reducePivot(inversa.pivots.get(inversa.pivots.size()-2));
+    inversa.riduzioneIdentita();
+    inversa.matr = inversa.getSubMatr(inversa.getValue(),matr.length);
+  }
+
+  public Matrice inversa(){
+    Matrice inversa = new Matrice(matr.length,matr.length*2);
+    setInversa(inversa);
+    return inversa;
   }
 
 
