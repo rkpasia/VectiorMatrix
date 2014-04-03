@@ -223,9 +223,9 @@ class Matrice{
     }
   }
 
-  private double[][] getSubMatr(double[][] matr, int startCol){
+  private double[][] getSubMatr(double[][] matr, int startCol, int endCol){
     double[][] newMatr = new double[startCol][startCol];
-    for(int i = startCol; i < matr[0].length; i++){
+    for(int i = startCol; i < endCol; i++){
       for(int j = 0; j < matr.length; j++){
         newMatr[j][i-startCol] = matr[j][i];
       }
@@ -241,7 +241,7 @@ class Matrice{
     inversa.riduzioneScala();
     inversa.reducePivot(inversa.pivots.get(inversa.pivots.size()-2));
     inversa.riduzioneIdentita();
-    inversa.matr = inversa.getSubMatr(inversa.getValue(),matr.length);
+    inversa.matr = inversa.getSubMatr(inversa.getValue(),matr.length,inversa.getValue()[0].length);
   }
 
   public Matrice inversa(){
